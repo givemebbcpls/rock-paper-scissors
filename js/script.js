@@ -1,29 +1,50 @@
-let getComputerChoice = () => {
+document.addEventListener('click', game);
+let score = [0, 0];
+let roundVerdictDiv = document.querySelector('#round-verdict');
+let gameVerdictDiv = document.querySelector('#game-verdict');
+let playerScore = document.querySelector('#player-score-digit');
+let computerScore = document.querySelector('#computer-score-digit');
+
+function game (event) {
+	let computerSelection = getComputerChoice();
+	let playerSelection = event.target.id;
+	if (playerSelection === '') return;
+	let roundResult = playRound(playerSelection, computerSelection);
+	
+	switch (roundResult[1]) {
+		case 1:
+			score[0]++;
+			break;
+		case -1:
+			score[1]++;
+	}
+	
+	playerScore.textContent = score[0];
+	computerScore.textContent = score[1];
+	roundVerdictDiv.textContent = roundResult[0];
+	
+	if (score[0] >= 3 || score[1] >= 3) {
+		gameOver();
+		document.removeEventListener('click', game);
+	}
+}
+
+function getComputerChoice () {
 	let choices = ['rock', 'paper', 'scissors'];
 	let choice = Math.floor(Math.random() * 3);
 	return choices[choice];
 }
 
-let playRound = (playerSelection, computerSelection) => {
-	playerSelection = playerSelection.toLowerCase();
-	if (!['rock', 'paper', 'scissors'].includes(playerSelection)) return;
+function playRound(playerSelection, computerSelection) {
 	let result;
 	let winProbabilities = ['You win!', 'You Lose!'];
 	let winnerChoice;
 	let looserChoice;
 	if (playerSelection === computerSelection) {
 		return ['It\'s a draw!', 0];
-	} else if (playerSelection === 'rock' && computerSelection === 'scissors') {
-		result = winProbabilities[0];
-		winnerChoice = playerSelection;
-		looserChoice = computerSelection;
-		isPlayerWin = 1;
-	} else if (playerSelection === 'paper' && computerSelection === 'rock') {
-		result = winProbabilities[0];
-		winnerChoice = playerSelection;
-		looserChoice = computerSelection;
-		isPlayerWin = 1;
-	} else if (playerSelection === 'scissors' && computerSelection === 'paper') {
+	} else if ((playerSelection === 'rock' && computerSelection === 'scissors') ||
+	(playerSelection === 'paper' && computerSelection === 'rock') ||
+	(playerSelection === 'scissors' && computerSelection === 'paper')) {
 		result = winProbabilities[0];
 		winnerChoice = playerSelection;
 		looserChoice = computerSelection;
@@ -38,33 +59,14 @@ let playRound = (playerSelection, computerSelection) => {
 	result = result.concat(' ', `${winnerChoice} beats ${looserChoice}.`);
 	return [result, isPlayerWin];
 }
-let game = () => {
-	let score = [0, 0];
-	while (score[0] < 3 && score[1] < 3) {
-		let playerSelection = prompt('What is your choice?', '');
-		if (playerSelection === null) return;
-		let computerSelection = getComputerChoice();
-		let roundResult;
-		if (roundResult = playRound(playerSelection, computerSelection)) {
-			switch (roundResult[1]) {
-				case 1:
-					score[0]++;
-					break;
-				case -1:
-					score[1]++;
-			}
-			console.log(roundResult[0] +
-				`\nY: ${score[0]}, C: ${score[1]}` +
-				'\n'.padEnd(roundResult[0].length + 1, '-'));
-		}
-	}
+
+function gameOver() {
 	let verdict = '';
-	if (score[0] > score[1]) {
-		verdict += 'Congratulations! You are winner.';
-	} else {
-		verdict += 'Unfortunatly, you are lose.';
-	}
-	console.log(verdict +
-		` Final score is:\n\tComputer - ${score[1]}\n\tHuman - ${score[0]}`);
+		if (score[0] > score[1]) {
+			verdict += 'Congratulations! You are winner.';
+		} else {
+			verdict += 'Unfortunatly, you are lose.';
+		}
+		gameVerdictDiv.textContent = verdict +
+		` Final score is: Human - ${score[0]}, Computer - ${score[1]}`;
 }
-game();
